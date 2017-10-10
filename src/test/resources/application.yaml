@@ -1,3 +1,10 @@
 spring:
   jmx:
     enabled: false
+# Log levels
+logging:
+    level:
+      de:
+        felixroske:
+          jfxsupport: TRACE
+      jfxtest: TRACE

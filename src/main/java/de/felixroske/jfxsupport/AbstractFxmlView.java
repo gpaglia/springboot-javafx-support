@@ -26,6 +26,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
+import javafx.util.Callback;
 
 /**
  * Base class for fxml-based view classes.
@@ -44,6 +45,9 @@ import javafx.scene.layout.AnchorPane;
  * @author Thomas Darimont
  * @author Felix Roske
  * @author Andreas Jay
+ * 
+ * extended by
+ * @author Gian Enrico Paglia (gianenrico.paglia@libero.it)
  *
  */
 public abstract class AbstractFxmlView implements ApplicationContextAware {
@@ -63,6 +67,12 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	private ApplicationContext applicationContext;
 
 	private String fxmlRoot;
+	
+	// gpaglia
+	private Object userData = null;
+	
+	// gpaglia
+	private Callback<Class<?>, Object> controllerFactory;
 
 	/**
 	 * Instantiates a new abstract fxml view.
@@ -78,6 +88,29 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		bundle = getResourceBundle(getBundleName());
 	}
 
+	// gpaglia
+	public AbstractFxmlView(Object userData) {
+		this();
+		this.userData = userData;
+	}
+	
+	// gpaglia
+	public AbstractFxmlView(Callback<Class<?>, Object> controllerFactory) {
+		this();
+		this.controllerFactory = controllerFactory;
+	}
+		
+	// gpaglia
+	public Object getUserData() {
+		return userData;
+	}
+	
+	// gpaglia
+	public Callback<Class<?>, Object> getControllerFactory() {
+		return controllerFactory;
+	}
+	
+	
 	/**
 	 * Gets the URL resource. This will be derived from applied annotation value
 	 * or from naming convention.
@@ -112,8 +145,24 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 *            the type
 	 * @return the object
 	 */
+	// gpaglia
 	private Object createControllerForType(final Class<?> type) {
-		return applicationContext.getBean(type);
+		if (controllerFactory != null) {
+			return controllerFactory.call(type);
+		}
+		else {
+			Object aPresenter = applicationContext.getBean(type);
+			if (this.userData != null) {
+				if (IUserDataSupport.class.isAssignableFrom(aPresenter.getClass())) {
+					IUserDataSupport extPresenter = (IUserDataSupport) aPresenter;
+					extPresenter.setUserData(userData);
+				} else {
+					LOGGER.warn("Ignoring User Data in controller instantiation as controller does not implement IUSerDataSupport");
+				}
+			} 
+			
+			return aPresenter;
+		}
 	}
 
 	/*
@@ -175,6 +224,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	/**
 	 * Ensure fxml loader initialized.
 	 */
+	// gpaglia
 	private void ensureFxmlLoaderInitialized() {
 
 		if (fxmlLoader != null) {
@@ -182,6 +232,9 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		}
 
 		fxmlLoader = loadSynchronously(resource, bundle);
+		if (fxmlLoader.getController() == null && controllerFactory != null) {
+			fxmlLoader.setController(controllerFactory.call(null));
+		}
 		presenterProperty.set(fxmlLoader.getController());
 	}
 
@@ -418,5 +471,6 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		return "AbstractFxmlView [presenterProperty=" + presenterProperty + ", bundle=" + bundle + ", resource="
 				+ resource + ", fxmlRoot=" + fxmlRoot + "]";
 	}
+
 
 }
