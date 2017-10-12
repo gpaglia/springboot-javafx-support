@@ -9,6 +9,7 @@ import org.junit.Test;
 import javafx.scene.Parent;
 import javafx.scene.layout.Pane;
 
+
 public class SplashScreenTest {
 
     class TestSplashScreen extends SplashScreen {

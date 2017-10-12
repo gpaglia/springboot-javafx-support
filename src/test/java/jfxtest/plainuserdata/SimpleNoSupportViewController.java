@@ -7,8 +7,8 @@ import de.felixroske.jfxsupport.FXMLController;
 import javafx.fxml.FXML;
 
 @FXMLController
-public class PlainUserDataNoSupportController {
-	private static final Logger logger = LoggerFactory.getLogger(PlainUserDataNoSupportController.class);
+public class SimpleNoSupportViewController {
+	private static final Logger logger = LoggerFactory.getLogger(SimpleNoSupportViewController.class);
 	
 	
 	@FXML

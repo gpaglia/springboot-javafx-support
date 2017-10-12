@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.MissingResourceException;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -27,6 +28,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
+import javafx.stage.StageStyle;
 
 /**
  * Base class for fxml-based view classes.
@@ -48,6 +50,8 @@ import javafx.util.Callback;
  * 
  * extended by
  * @author Gian Enrico Paglia (gianenrico.paglia@libero.it)
+ * 	added support for injecting view reference in controller
+ * 	added support for external controller factory
  *
  */
 public abstract class AbstractFxmlView implements ApplicationContextAware {
@@ -56,7 +60,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 
 	private final ObjectProperty<Object> presenterProperty;
 
-	private final ResourceBundle bundle;
+	private final Optional<ResourceBundle> bundle;
 
 	private final URL resource;
 
@@ -67,9 +71,6 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	private ApplicationContext applicationContext;
 
 	private String fxmlRoot;
-	
-	// gpaglia
-	private Object userData = null;
 	
 	// gpaglia
 	private Callback<Class<?>, Object> controllerFactory;
@@ -88,11 +89,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		bundle = getResourceBundle(getBundleName());
 	}
 
-	// gpaglia
-	public AbstractFxmlView(Object userData) {
-		this();
-		this.userData = userData;
-	}
+
 	
 	// gpaglia
 	public AbstractFxmlView(Callback<Class<?>, Object> controllerFactory) {
@@ -100,11 +97,6 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		this.controllerFactory = controllerFactory;
 	}
 		
-	// gpaglia
-	public Object getUserData() {
-		return userData;
-	}
-	
 	// gpaglia
 	public Callback<Class<?>, Object> getControllerFactory() {
 		return controllerFactory;
@@ -147,22 +139,19 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 */
 	// gpaglia
 	private Object createControllerForType(final Class<?> type) {
+		Object aPresenter = null;
+		
 		if (controllerFactory != null) {
-			return controllerFactory.call(type);
+			aPresenter = controllerFactory.call(type);
+		} else {
+			aPresenter = applicationContext.getBean(type);
 		}
-		else {
-			Object aPresenter = applicationContext.getBean(type);
-			if (this.userData != null) {
-				if (IUserDataSupport.class.isAssignableFrom(aPresenter.getClass())) {
-					IUserDataSupport extPresenter = (IUserDataSupport) aPresenter;
-					extPresenter.setUserData(userData);
-				} else {
-					LOGGER.warn("Ignoring User Data in controller instantiation as controller does not implement IUSerDataSupport");
-				}
-			} 
-			
-			return aPresenter;
+		
+		if (aPresenter instanceof IViewAwareController) {
+			((IViewAwareController) aPresenter).setView(this);
 		}
+		
+		return aPresenter;
 	}
 
 	/*
@@ -182,18 +171,8 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		this.applicationContext = applicationContext;
 	}
 
-	/**
-	 * Sets the fxml root path.
-	 *
-	 * @param path
-	 *            the new fxml root path
-	 */
 	private void setFxmlRootPath(final String path) {
-		if (path.endsWith("/")) {
-			fxmlRoot = path;
-		} else {
-			fxmlRoot = path + "/";
-		}
+		fxmlRoot = path;
 	}
 
 	/**
@@ -207,15 +186,15 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 * @throws IllegalStateException
 	 *             the illegal state exception
 	 */
-	private FXMLLoader loadSynchronously(final URL resource, final ResourceBundle bundle) throws IllegalStateException {
+	private FXMLLoader loadSynchronously(final URL resource, final Optional<ResourceBundle> bundle) throws IllegalStateException {
 
-		final FXMLLoader loader = new FXMLLoader(resource, bundle);
+		final FXMLLoader loader = new FXMLLoader(resource, bundle.orElse(null));
 		loader.setControllerFactory(this::createControllerForType);
 
 		try {
 			loader.load();
-		} catch (final IOException ex) {
-			throw new IllegalStateException("Cannot load " + getConventionalName(), ex);
+		} catch (final IOException | IllegalStateException e) {
+			throw new IllegalStateException("Cannot load " + getConventionalName(), e);
 		}
 
 		return loader;
@@ -297,7 +276,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 			list.forEach(css -> parent.getStylesheets().add(getClass().getResource(css).toExternalForm()));
 		}
 
-		addCSSFromAnnotation(parent, annotation);
+		addCSSFromAnnotation(parent);
 
 		final URL uri = getClass().getResource(getStyleSheetName());
 		if (uri == null) {
@@ -316,7 +295,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 * @param annotation
 	 *            the annotation
 	 */
-	private void addCSSFromAnnotation(final Parent parent, final FXMLView annotation) {
+	private void addCSSFromAnnotation(final Parent parent) {
 		if (annotation != null && annotation.css().length > 0) {
 			for (final String cssFile : annotation.css()) {
 				final URL uri = getClass().getResource(cssFile);
@@ -331,6 +310,22 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		}
 	}
 
+	/*
+	 * Gets the default title for to be shown in a (un)modal window. 
+	 * 
+	 */
+    String getDefaultTitle() {
+        return annotation.title();
+    }
+    
+    /*
+     * Gets the default style for a (un)modal window.
+     */
+    StageStyle getDefaultStyle() {
+        final String style = annotation.stageStyle();
+        return StageStyle.valueOf(style.toUpperCase());
+    }
+	
 	/**
 	 * Gets the style sheet name.
 	 *
@@ -441,20 +436,24 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	}
 
 	/**
-	 * Gets the resource bundle or returns null.
+	 * Returns a resource bundle if available
 	 *
 	 * @param name
 	 *            the name of the resource bundle.
 	 * @return the resource bundle
 	 */
-	private ResourceBundle getResourceBundle(final String name) {
+	private Optional<ResourceBundle> getResourceBundle(final String name) {
+	    ResourceBundle bundle;
+
 		try {
 			LOGGER.debug("Resource bundle: " + name);
-			return getBundle(name);
+			bundle = getBundle(name);
 		} catch (final MissingResourceException ex) {
 			LOGGER.debug("No resource bundle could be determined: " + ex.getMessage());
-			return null;
+			bundle = null;
 		}
+		
+		return Optional.ofNullable(bundle);
 	}
 
 	/**
@@ -462,7 +461,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 *
 	 * @return an existing resource bundle, or null
 	 */
-	public ResourceBundle getResourceBundle() {
+	public Optional<ResourceBundle> getResourceBundle() {
 		return bundle;
 	}
 
@@ -471,6 +470,5 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		return "AbstractFxmlView [presenterProperty=" + presenterProperty + ", bundle=" + bundle + ", resource="
 				+ resource + ", fxmlRoot=" + fxmlRoot + "]";
 	}
-
 
 }
