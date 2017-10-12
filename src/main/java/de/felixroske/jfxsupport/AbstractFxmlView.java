@@ -27,6 +27,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
+import javafx.util.Callback;
 import javafx.stage.StageStyle;
 
 /**
@@ -46,6 +47,11 @@ import javafx.stage.StageStyle;
  * @author Thomas Darimont
  * @author Felix Roske
  * @author Andreas Jay
+ * 
+ * extended by
+ * @author Gian Enrico Paglia (gianenrico.paglia@libero.it)
+ * 	added support for injecting view reference in controller
+ * 	added support for external controller factory
  *
  */
 public abstract class AbstractFxmlView implements ApplicationContextAware {
@@ -65,6 +71,9 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	private ApplicationContext applicationContext;
 
 	private String fxmlRoot;
+	
+	// gpaglia
+	private Callback<Class<?>, Object> controllerFactory;
 
 	/**
 	 * Instantiates a new abstract fxml view.
@@ -80,6 +89,20 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		bundle = getResourceBundle(getBundleName());
 	}
 
+
+	
+	// gpaglia
+	public AbstractFxmlView(Callback<Class<?>, Object> controllerFactory) {
+		this();
+		this.controllerFactory = controllerFactory;
+	}
+		
+	// gpaglia
+	public Callback<Class<?>, Object> getControllerFactory() {
+		return controllerFactory;
+	}
+	
+	
 	/**
 	 * Gets the URL resource. This will be derived from applied annotation value
 	 * or from naming convention.
@@ -114,8 +137,21 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 *            the type
 	 * @return the object
 	 */
+	// gpaglia
 	private Object createControllerForType(final Class<?> type) {
-		return applicationContext.getBean(type);
+		Object aPresenter = null;
+		
+		if (controllerFactory != null) {
+			aPresenter = controllerFactory.call(type);
+		} else {
+			aPresenter = applicationContext.getBean(type);
+		}
+		
+		if (aPresenter instanceof IViewAwareController) {
+			((IViewAwareController) aPresenter).setView(this);
+		}
+		
+		return aPresenter;
 	}
 
 	/*
@@ -167,6 +203,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	/**
 	 * Ensure fxml loader initialized.
 	 */
+	// gpaglia
 	private void ensureFxmlLoaderInitialized() {
 
 		if (fxmlLoader != null) {
@@ -174,6 +211,9 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		}
 
 		fxmlLoader = loadSynchronously(resource, bundle);
+		if (fxmlLoader.getController() == null && controllerFactory != null) {
+			fxmlLoader.setController(controllerFactory.call(null));
+		}
 		presenterProperty.set(fxmlLoader.getController());
 	}
 
