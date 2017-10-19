@@ -5,7 +5,7 @@
 
   <groupId>de.roskenet</groupId>
   <artifactId>springboot-javafx-support</artifactId>
-  <version>1.4.1-gp</version>
+  <version>1.4.1-gp2</version>
   <packaging>jar</packaging>
 
   <name>springboot-javafx-support</name>
@@ -17,7 +17,8 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <spring-framework.version>5.0.0.RELEASE</spring-framework.version>
-    <spring-boot.version>1.5.7.RELEASE</spring-boot.version>
+    <spring-boot.version>2.0.0.M5</spring-boot.version>
+    <spring-boot-javafx-test.version>1.2.0</spring-boot-javafx-test.version>
     <slf4j.version>1.7.25</slf4j.version>
   </properties>
 
@@ -41,7 +42,18 @@
       <name>MIT</name>
     </license>
   </licenses>
-
+  
+  <repositories>
+	<repository>
+		<id>spring-milestones</id>
+		<name>Spring Milestones</name>
+		<url>https://repo.spring.io/libs-milestone</url>
+		<snapshots>
+			<enabled>false</enabled>
+		</snapshots>
+	</repository>
+  </repositories>
+  
   <dependencies>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -64,7 +76,7 @@
     <dependency>
       <groupId>de.roskenet</groupId>
       <artifactId>springboot-javafx-test</artifactId>
-      <version>1.0.1</version>
+      <version>${spring-boot-javafx-test.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
