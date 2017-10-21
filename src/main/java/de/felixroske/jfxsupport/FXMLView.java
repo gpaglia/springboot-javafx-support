@@ -50,6 +50,8 @@ public @interface FXMLView {
 	/**
 	 * The style to be applied to the underlying stage 
 	 * when using this view as a modal window.
+	 * 
+	 * @return The default stage style.
 	 */
 	String stageStyle() default "UTILITY";
 }

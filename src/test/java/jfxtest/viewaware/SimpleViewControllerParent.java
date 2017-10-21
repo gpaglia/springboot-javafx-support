@@ -11,8 +11,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
 @FXMLController
-public class SimpleViewController extends AbstractFxmlController {
-	private static final Logger logger = LoggerFactory.getLogger(SimpleViewController.class);
+public class SimpleViewControllerParent extends AbstractFxmlController {
+	private static final Logger logger = LoggerFactory.getLogger(SimpleViewControllerParent.class);
 	
 	// for testing purposes
 	public ViewContextObject getContext() {
@@ -25,8 +25,8 @@ public class SimpleViewController extends AbstractFxmlController {
 		logger.info("View context is {}", getViewContextObject());
 	}
 	
-	@ActionProxy(id="ID1", text="Action1")
-	public void action(ActionEvent event) {
+	@ActionProxy(id="ID2", text="Action2")
+	public void action2(ActionEvent event) {
 		
 	}
 

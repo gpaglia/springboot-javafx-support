@@ -5,7 +5,7 @@
 
   <groupId>de.roskenet</groupId>
   <artifactId>springboot-javafx-support</artifactId>
-  <version>1.4.1-gp2</version>
+  <version>1.4.1-gp3</version>
   <packaging>jar</packaging>
 
   <name>springboot-javafx-support</name>
@@ -18,8 +18,10 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <spring-framework.version>5.0.0.RELEASE</spring-framework.version>
     <spring-boot.version>2.0.0.M5</spring-boot.version>
-    <spring-boot-javafx-test.version>1.2.0</spring-boot-javafx-test.version>
+    <!-- <spring-boot-javafx-test.version>1.0.1-gp</spring-boot-javafx-test.version> -->
     <slf4j.version>1.7.25</slf4j.version>
+    <testfx.version>4.0.8-alpha</testfx.version>
+    <monocle.version>8u76-b04</monocle.version>
   </properties>
 
   <scm>
@@ -55,6 +57,13 @@
   </repositories>
   
   <dependencies>
+  	<!-- https://mvnrepository.com/artifact/org.controlsfx/controlsfx -->
+	<dependency>
+    	<groupId>org.controlsfx</groupId>
+    	<artifactId>controlsfx</artifactId>
+    	<version>8.40.14</version>
+    	<scope>provided</scope>
+	</dependency> 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
@@ -73,10 +82,18 @@
       <version>${slf4j.version}</version> 
       <scope>provided</scope>
     </dependency>
+    <!--  
     <dependency>
       <groupId>de.roskenet</groupId>
       <artifactId>springboot-javafx-test</artifactId>
       <version>${spring-boot-javafx-test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <version>${spring-boot.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -90,6 +107,25 @@
       <artifactId>junit</artifactId>
       <version>4.12</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-core</artifactId>
+      <version>${testfx.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-junit</artifactId>
+      <version>${testfx.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>openjfx-monocle</artifactId>
+      <version>${monocle.version}</version>
+      <scope>test</scope>
+      <!-- <version>8u76-b04</version> Doesn't work with 4.0.5-alpha yet. -->
     </dependency>
   </dependencies>
 
@@ -133,6 +169,17 @@
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>3.0.3</version>
       </plugin>
-    </plugins>
+      <!-- 
+      <plugin>
+    	<groupId>org.apache.maven.plugins</groupId>
+    	<artifactId>maven-surefire-plugin</artifactId>
+    	<version>2.20.1</version>
+    	<configuration>
+        	<reuseForks>false</reuseForks>
+        	<forkCount>1</forkCount>
+    	</configuration>
+	</plugin>
+	-->
+   </plugins>
   </build>
 </project>

@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import javax.annotation.PostConstruct;
@@ -18,9 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import de.felixroske.jfxsupport.AbstractFxmlController;
 import de.felixroske.jfxsupport.AbstractFxmlView;
-import de.felixroske.jfxsupport.IViewAwareController;
-import de.roskenet.jfxsupport.test.GuiTest;
+import de.felixroske.jfxsupport.ActionHolder;
+import de.felixroske.jfxsupport.IFxmlController;
+import de.felixroske.jfxsupport.test.GuiTest;
 import javafx.util.Callback;
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -44,25 +47,38 @@ public class SimpleViewTest extends GuiTest {
 		
 		assertThat(buttonsView, isA(AbstractFxmlView.class));
 		assertThat(buttonsView.getPresenter(), is(instanceOf(SimpleViewController.class)));
-		assertThat(buttonsView.getPresenter(), is(instanceOf(IViewAwareController.class)));
-		IViewAwareController p = (IViewAwareController) buttonsView.getPresenter();
-		assertThat(p.getView(), is(buttonsView));
+		assertThat(buttonsView.getPresenter(), is(instanceOf(IFxmlController.class)));
+		assertThat(buttonsView.getPresenter(), is(instanceOf(AbstractFxmlController.class)));
+
+		SimpleViewController p = (SimpleViewController) buttonsView.getPresenter();
+		assertThat(p.getContext().getView(), is(buttonsView));
+		assertThat(p.getContext().getActionHolder().getAction("ID1"), is(notNullValue()));
 	}
 
 	@Test
 	public void appStartsUp2() throws Exception {
 		Callback<Class<?>, Object> factory = (type) -> {
 			logger.info("*** Ignoring controller type {}", type);
-			IViewAwareController p = new AnotherViewAwareController();
+			IFxmlController p = new AnotherViewAwareController();
 			return p;
 		};
-		SimpleView buttonsView2 = beanFactory.getBean(SimpleView.class, "USERDATA", factory);
+		SimpleViewControllerParent svcp = new SimpleViewControllerParent();
+		
+		ActionHolder actions = new ActionHolder();
+		actions.register(svcp);
+		
+		SimpleView buttonsView2 = beanFactory.getBean(SimpleView.class, "USERDATA", actions, factory);
 		assertThat(buttonsView2, isA(AbstractFxmlView.class));
 		assertThat(buttonsView2.getPresenter(), is(instanceOf(AnotherViewAwareController.class)));
-		assertThat(buttonsView2.getPresenter(), is(instanceOf(IViewAwareController.class)));
-		IViewAwareController p = (IViewAwareController) buttonsView2.getPresenter();
-		assertThat(p.getView(), is(equalTo(buttonsView2)));
-		assertThat(((SimpleView) p.getView()).getData(), is(equalTo("USERDATA")));
+		assertThat(buttonsView2.getPresenter(), is(instanceOf(IFxmlController.class)));
+		assertThat(buttonsView.getPresenter(), is(instanceOf(AbstractFxmlController.class)));
+
+		AnotherViewAwareController p = (AnotherViewAwareController) buttonsView2.getPresenter();
+		assertThat(p.getContext().getView(), is(equalTo(buttonsView2)));
+		assertThat(p.getContext().getUserData(), is(equalTo("USERDATA")));
+		assertThat(p.getContext().getActionHolder().getAction("ID1"), is(notNullValue()));
+		assertThat(p.getContext().getActionHolder().getAction("ID2"), is(notNullValue()));
+
 	}
 
 
@@ -71,8 +87,8 @@ public class SimpleViewTest extends GuiTest {
 		SimpleNoSupportView buttonsView2 = beanFactory.getBean(SimpleNoSupportView.class, "USERDATA");
 		assertThat(buttonsView2, isA(AbstractFxmlView.class));
 		assertThat(buttonsView2.getPresenter(), is(instanceOf(SimpleNoSupportViewController.class)));
-		assertThat(buttonsView2.getPresenter(), not(is(instanceOf(IViewAwareController.class))));
-		assertThat(buttonsView2.getData(), is(equalTo("USERDATA")));
+		assertThat(buttonsView2.getPresenter(), not(is(instanceOf(IFxmlController.class))));
+		assertThat(buttonsView2.getUserData(), is(equalTo("USERDATA")));
 	}
 	
 	
@@ -81,7 +97,7 @@ public class SimpleViewTest extends GuiTest {
 		SimpleNoSupportView buttonsView2 = beanFactory.getBean(SimpleNoSupportView.class, "USERDATA");
 		assertThat(buttonsView2, isA(AbstractFxmlView.class));
 		assertThat(buttonsView2.getPresenter(), is(instanceOf(SimpleNoSupportViewController.class)));
-		assertThat(buttonsView2.getPresenter(), not(is(instanceOf(IViewAwareController.class))));
+		assertThat(buttonsView2.getPresenter(), not(is(instanceOf(IFxmlController.class))));
 		
 	}
 	

@@ -74,6 +74,8 @@ public class PropertyReaderHelper {
 	 * the file path equivalent. The path will be prefixed and suffixed with a
 	 * slash.
 	 *
+	 * @param clazz the class
+	 *
 	 * @return the path equivalent to a package structure.
 	 */
 	public static final String determineFilePathFromPackageName(final Class<?> clazz) {

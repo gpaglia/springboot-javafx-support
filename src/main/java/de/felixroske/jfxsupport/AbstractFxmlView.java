@@ -57,7 +57,7 @@ import javafx.stage.StageStyle;
 public abstract class AbstractFxmlView implements ApplicationContextAware {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFxmlView.class);
-
+	
 	private final ObjectProperty<Object> presenterProperty;
 
 	private final Optional<ResourceBundle> bundle;
@@ -74,7 +74,10 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	
 	// gpaglia
 	private Callback<Class<?>, Object> controllerFactory;
-
+	private ActionHolder parentActionHolder = new ActionHolder();
+	private Object userData = null;
+	
+	//
 	/**
 	 * Instantiates a new abstract fxml view.
 	 */
@@ -89,11 +92,22 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		bundle = getResourceBundle(getBundleName());
 	}
 
-
+	// gpaglia
+	public AbstractFxmlView(ActionHolder parentActionHolder, Object userData) {
+		this();
+		this.parentActionHolder = parentActionHolder == null ? new ActionHolder() : parentActionHolder;
+		this.userData = userData;
+	}
 	
 	// gpaglia
 	public AbstractFxmlView(Callback<Class<?>, Object> controllerFactory) {
 		this();
+		this.controllerFactory = controllerFactory;
+	}
+	
+	// gpaglia
+	public AbstractFxmlView(ActionHolder parentActionHolder, Object userData, Callback<Class<?>, Object> controllerFactory) {
+		this(parentActionHolder, userData);
 		this.controllerFactory = controllerFactory;
 	}
 		
@@ -102,6 +116,15 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		return controllerFactory;
 	}
 	
+	// gpaglia
+	public ActionHolder getParentActionHolder() {
+		return parentActionHolder;
+	}
+	
+	// gpaglia
+	public Object getUserData() {
+		return userData;
+	}
 	
 	/**
 	 * Gets the URL resource. This will be derived from applied annotation value
@@ -139,7 +162,10 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 */
 	// gpaglia
 	private Object createControllerForType(final Class<?> type) {
+		LOGGER.info("Entering create controller...");
 		Object aPresenter = null;
+		
+		ViewContextObject vco = new ViewContextObject(this, parentActionHolder, userData);
 		
 		if (controllerFactory != null) {
 			aPresenter = controllerFactory.call(type);
@@ -147,10 +173,14 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 			aPresenter = applicationContext.getBean(type);
 		}
 		
-		if (aPresenter instanceof IViewAwareController) {
-			((IViewAwareController) aPresenter).setView(this);
+		if (aPresenter instanceof IFxmlController) {
+			// add actions coming from this presenter
+			ActionHolder ah = ActionHolder.on(aPresenter);
+			vco.getActionHolder().registerAll(ah);
+			// inject the vco object
+			((IFxmlController) aPresenter).setViewContextObject(vco);
 		}
-		
+		LOGGER.info("Returning from createcontroller");
 		return aPresenter;
 	}
 
@@ -196,7 +226,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		} catch (final IOException | IllegalStateException e) {
 			throw new IllegalStateException("Cannot load " + getConventionalName(), e);
 		}
-
+		LOGGER.info("Returning from loadSync");
 		return loader;
 	}
 
@@ -212,9 +242,10 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 
 		fxmlLoader = loadSynchronously(resource, bundle);
 		if (fxmlLoader.getController() == null && controllerFactory != null) {
-			fxmlLoader.setController(controllerFactory.call(null));
+			fxmlLoader.setController(createControllerForType(null));
 		}
 		presenterProperty.set(fxmlLoader.getController());
+		LOGGER.info("Returning from ensure...");
 	}
 
 	/**

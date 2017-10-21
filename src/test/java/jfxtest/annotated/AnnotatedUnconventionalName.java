@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import de.roskenet.jfxsupport.test.GuiTest;
+import de.felixroske.jfxsupport.test.GuiTest;
 import javafx.scene.control.Button;
 @RunWith(SpringRunner.class)
 @SpringBootTest

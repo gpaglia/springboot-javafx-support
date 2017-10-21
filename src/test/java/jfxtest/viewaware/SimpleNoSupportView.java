@@ -5,19 +5,13 @@ import de.felixroske.jfxsupport.FXMLView;
 
 @FXMLView
 public class SimpleNoSupportView extends AbstractFxmlView {
-
-	private String data;
 	
 	SimpleNoSupportView() {
 		super();
 	}
 	
 	SimpleNoSupportView(String data) {
-		super();
-		this.data = data;
+		super(null, data);
 	}
 	
-	public String getData() {
-		return data;
-	}
 }
