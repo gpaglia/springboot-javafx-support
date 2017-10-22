@@ -1,8 +1,11 @@
 package de.felixroske.jfxsupport;
 
-import org.controlsfx.control.action.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.felixroske.jfxsupport.context.MethodHolder;
+import de.felixroske.jfxsupport.context.MethodWrapper;
+import de.felixroske.jfxsupport.context.ViewContextObject;
 
 
 public class AbstractFxmlController implements IFxmlController {
@@ -23,12 +26,12 @@ public class AbstractFxmlController implements IFxmlController {
 		return viewContextObject;
 	}
 	
-	protected ActionHolder getActionHolder() {
-		return getViewContextObject().getActionHolder();
+	protected MethodHolder getMethodHolder() {
+		return getViewContextObject().getMethodHolder();
 	}
 	
-	protected Action getAction(String id) {
-		return getViewContextObject().getActionHolder().getAction(id);
+	protected MethodWrapper getAMethodWrapper(String id) {
+		return getViewContextObject().getMethodHolder().getMethodWrapper(id);
 	}
 	
 

@@ -6,7 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import de.felixroske.jfxsupport.AbstractFxmlController;
 import de.felixroske.jfxsupport.FXMLController;
-import de.felixroske.jfxsupport.ViewContextObject;
+import de.felixroske.jfxsupport.context.ContextMethod;
+import de.felixroske.jfxsupport.context.ViewContextObject;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
@@ -25,7 +26,7 @@ public class SimpleViewControllerParent extends AbstractFxmlController {
 		logger.info("View context is {}", getViewContextObject());
 	}
 	
-	@ActionProxy(id="ID2", text="Action2")
+	@ContextMethod(id="ID2")
 	public void action2(ActionEvent event) {
 		
 	}

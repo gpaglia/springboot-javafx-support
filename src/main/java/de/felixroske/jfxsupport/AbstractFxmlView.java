@@ -18,6 +18,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.StringUtils;
 
+import de.felixroske.jfxsupport.context.MethodHolder;
+import de.felixroske.jfxsupport.context.ViewContextObject;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -74,7 +76,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	
 	// gpaglia
 	private Callback<Class<?>, Object> controllerFactory;
-	private ActionHolder parentActionHolder = new ActionHolder();
+	private ViewContextObject parentContext;
 	private Object userData = null;
 	
 	//
@@ -82,7 +84,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 * Instantiates a new abstract fxml view.
 	 */
 	public AbstractFxmlView() {
-		LOGGER.debug("AbstractFxmlView construction");
+		LOGGER.debug("AbstractFxmlView construction, class {}", this.getClass().getSimpleName());
 		// Set the root path to package path
 		final String filePathFromPackageName = PropertyReaderHelper.determineFilePathFromPackageName(getClass());
 		setFxmlRootPath(filePathFromPackageName);
@@ -93,21 +95,25 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	}
 
 	// gpaglia
-	public AbstractFxmlView(ActionHolder parentActionHolder, Object userData) {
+	public AbstractFxmlView(ViewContextObject parentContext, Object userData) {
 		this();
-		this.parentActionHolder = parentActionHolder == null ? new ActionHolder() : parentActionHolder;
+		LOGGER.debug("AbstractFxmlView construction, parentContext {}, userData {}", parentContext, userData);
+		this.parentContext = parentContext;
 		this.userData = userData;
 	}
 	
 	// gpaglia
 	public AbstractFxmlView(Callback<Class<?>, Object> controllerFactory) {
 		this();
+		LOGGER.debug("AbstractFxmlView construction, factory {}", controllerFactory);
 		this.controllerFactory = controllerFactory;
 	}
 	
 	// gpaglia
-	public AbstractFxmlView(ActionHolder parentActionHolder, Object userData, Callback<Class<?>, Object> controllerFactory) {
-		this(parentActionHolder, userData);
+	public AbstractFxmlView(ViewContextObject parentContext, Object userData, Callback<Class<?>, Object> controllerFactory) {
+		this(parentContext, userData);
+		LOGGER.debug("AbstractFxmlView construction, parentContext {}, userData {}, factory {}", parentContext, userData, controllerFactory);
+
 		this.controllerFactory = controllerFactory;
 	}
 		
@@ -117,8 +123,8 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	}
 	
 	// gpaglia
-	public ActionHolder getParentActionHolder() {
-		return parentActionHolder;
+	public ViewContextObject getParentContext() {
+		return parentContext;
 	}
 	
 	// gpaglia
@@ -162,25 +168,32 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 */
 	// gpaglia
 	private Object createControllerForType(final Class<?> type) {
-		LOGGER.info("Entering create controller...");
+		LOGGER.debug("Entering create controller...");
 		Object aPresenter = null;
 		
-		ViewContextObject vco = new ViewContextObject(this, parentActionHolder, userData);
+		LOGGER.trace("Createing vco");
+
+		ViewContextObject vco = new ViewContextObject(parentContext, this, null, userData);
 		
+		LOGGER.trace("Created vco: {}", vco);
+
 		if (controllerFactory != null) {
+			LOGGER.trace("Calling factory...");
 			aPresenter = controllerFactory.call(type);
 		} else {
+			LOGGER.trace("Getting bean...");
 			aPresenter = applicationContext.getBean(type);
 		}
 		
+		
 		if (aPresenter instanceof IFxmlController) {
 			// add actions coming from this presenter
-			ActionHolder ah = ActionHolder.on(aPresenter);
-			vco.getActionHolder().registerAll(ah);
+			MethodHolder mh = vco.getMethodHolder();	// the mh is empty now
+			mh.register(aPresenter);
 			// inject the vco object
 			((IFxmlController) aPresenter).setViewContextObject(vco);
 		}
-		LOGGER.info("Returning from createcontroller");
+		LOGGER.debug("Returning from createcontroller");
 		return aPresenter;
 	}
 
