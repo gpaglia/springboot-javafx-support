@@ -1,6 +1,5 @@
 package jfxtest.viewaware;
 
-import org.controlsfx.control.action.ActionProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

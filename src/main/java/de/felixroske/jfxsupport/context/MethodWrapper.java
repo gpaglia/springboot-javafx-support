@@ -62,7 +62,7 @@ public class MethodWrapper {
     	Object actionTarget = getTarget();
     	if (actionTarget == null) {
     		throw new IllegalStateException( "Action target object is no longer reachable" );
-    	} else if (! clazz.isAssignableFrom(method.getReturnType())) {
+    	} else if (! clazz.equals(Void.class) && ! clazz.isAssignableFrom(method.getReturnType())) {
     		throw new IllegalArgumentException( "Incomaptible return type" );    		
     	} else if (! checkParamsCompatibility(args)) {
     		throw new IllegalArgumentException( "Incomaptible param types" );
@@ -94,7 +94,7 @@ public class MethodWrapper {
      * 
      */
     public void call(Object... args) {
-    	call(Object.class, args);
+    	call(Void.class, args);
     }
 
     private boolean checkParamsCompatibility(Object... args) {

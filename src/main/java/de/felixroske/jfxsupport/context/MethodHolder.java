@@ -82,7 +82,12 @@ public class MethodHolder {
 	}
 	
 	public void call(String id, Object... args) {
-		call(id, Object.class, args);
+		MethodWrapper mw = getMethodWrapper(id);
+		if (mw != null) {
+			mw.call(args);
+		} else {
+			throw new IllegalArgumentException("Method not found, id: " + id);
+		}
 	}
 	
     /**
