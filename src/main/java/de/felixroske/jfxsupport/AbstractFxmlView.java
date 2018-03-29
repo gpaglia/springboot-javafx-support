@@ -438,15 +438,15 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 * @return the bundle name
 	 */
 	private String getBundleName() {
-		if (!StringUtils.isEmpty(annotation)) {
-			final String lbundle = annotation.bundle();
-			LOGGER.debug("Annotated bundle: {}", lbundle);
-			return lbundle;
-		} else {
+		if (StringUtils.isEmpty(annotation.bundle())) {
 			final String lbundle = getClass().getPackage().getName() + "." + getConventionalName();
 			LOGGER.debug("Bundle: {} based on conventional name.", lbundle);
 			return lbundle;
 		}
+
+		final String lbundle = annotation.bundle();
+		LOGGER.debug("Annotated bundle: {}", lbundle);
+		return lbundle;
 	}
 
 	/**
@@ -487,17 +487,24 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 * @return the resource bundle
 	 */
 	private Optional<ResourceBundle> getResourceBundle(final String name) {
-	    ResourceBundle bundle;
-
 		try {
 			LOGGER.debug("Resource bundle: " + name);
-			bundle = getBundle(name);
+			return Optional.of(getBundle(name,
+				new ResourceBundleControl(getResourceBundleCharset())));
 		} catch (final MissingResourceException ex) {
 			LOGGER.debug("No resource bundle could be determined: " + ex.getMessage());
-			bundle = null;
+			return Optional.empty();
 		}
-		
-		return Optional.ofNullable(bundle);
+	}
+
+	/**
+	 * Returns the charset to use when reading resource bundles as specified in
+	 * the annotation.
+	 *
+	 * @return  the charset
+	 */
+	private Charset getResourceBundleCharset() {
+		return Charset.forName(annotation.encoding());
 	}
 
 	/**
