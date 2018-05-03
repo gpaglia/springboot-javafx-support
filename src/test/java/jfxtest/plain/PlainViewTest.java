@@ -12,10 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import de.felixroske.jfxsupport.AbstractFxmlView;
-import de.felixroske.jfxsupport.test.GuiTest;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class PlainViewTest extends GuiTest {
+public class PlainViewTest extends de.roskenet.jfxsupport.test.GuiTest {
 	
 	@Autowired
 	private PlainView buttonsView;

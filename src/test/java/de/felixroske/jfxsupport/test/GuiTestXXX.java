@@ -12,7 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class GuiTest extends ApplicationTest implements ApplicationContextAware {
+public class GuiTestXXX extends ApplicationTest implements ApplicationContextAware {
 
     @BeforeClass
     public static void setHeadlessMode() {

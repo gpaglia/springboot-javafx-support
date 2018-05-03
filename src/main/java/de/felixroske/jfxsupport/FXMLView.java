@@ -5,13 +5,10 @@ import org.springframework.stereotype.Component;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-<<<<<<< HEAD
+
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-=======
->>>>>>> refs/tags/v2.1.6
 /**
  * The annotation {@link FXMLView} indicates a class to be used in the context
  * of an JavaFX view. Such classes are used in combination with fxml markup

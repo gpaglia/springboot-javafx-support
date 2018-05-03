@@ -30,7 +30,7 @@ public class AbstractFxmlController implements IFxmlController {
 		return getViewContextObject().getMethodHolder();
 	}
 	
-	protected MethodWrapper getAMethodWrapper(String id) {
+	protected MethodWrapper getMethodWrapper(String id) {
 		return getViewContextObject().getMethodHolder().getMethodWrapper(id);
 	}
 	

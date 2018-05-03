@@ -41,8 +41,8 @@ public class AbstractJavaFxApplicationSupportTest { //extends GuiTest {
     public void setup() throws Exception {
         FxToolkit.registerPrimaryStage();
         app = new TestApp();
-        app.savedInitialView = AnnotatedView.class;
-        app.splashScreen = new SplashScreen();
+        AbstractJavaFxApplicationSupport.savedInitialView = AnnotatedView.class;
+        AbstractJavaFxApplicationSupport.splashScreen = new SplashScreen();
         FxToolkit.setupApplication(() -> app);
     }
 

@@ -28,7 +28,6 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Felix Roske
  */
-@SuppressWarnings("WeakerAccess")
 public abstract class AbstractJavaFxApplicationSupport extends Application {
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaFxApplicationSupport.class);
 

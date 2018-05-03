@@ -24,8 +24,9 @@ import de.felixroske.jfxsupport.AbstractFxmlController;
 import de.felixroske.jfxsupport.AbstractFxmlView;
 import de.felixroske.jfxsupport.IFxmlController;
 import de.felixroske.jfxsupport.context.ViewContextObject;
-import de.felixroske.jfxsupport.test.GuiTest;
+import de.roskenet.jfxsupport.test.GuiTest;
 import javafx.util.Callback;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SimpleViewTest extends GuiTest {

@@ -4,6 +4,7 @@ import static java.util.ResourceBundle.getBundle;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.Optional;
@@ -84,7 +85,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 * Instantiates a new abstract fxml view.
 	 */
 	public AbstractFxmlView() {
-		LOGGER.debug("AbstractFxmlView construction, class {}", this.getClass().getSimpleName());
+		LOGGER.debug("Constructor for class {}", this.getClass().getSimpleName());
 		// Set the root path to package path
 		final String filePathFromPackageName = PropertyReaderHelper.determineFilePathFromPackageName(getClass());
 		setFxmlRootPath(filePathFromPackageName);
@@ -92,21 +93,23 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		resource = getURLResource(annotation);
 		presenterProperty = new SimpleObjectProperty<>();
 		bundle = getResourceBundle(getBundleName());
+		LOGGER.debug("Constructed View, annotation: {}, resource: {}, bundle: {}", annotation, resource, getBundleName());
 	}
 
 	// gpaglia
 	public AbstractFxmlView(ViewContextObject parentContext, Object userData) {
 		this();
-		LOGGER.debug("AbstractFxmlView construction, parentContext {}, userData {}", parentContext, userData);
 		this.parentContext = parentContext;
 		this.userData = userData;
+		LOGGER.debug("Constructed View, additiona properties, context: {}, userData: {}", parentContext, userData);
 	}
 	
 	// gpaglia
 	public AbstractFxmlView(Callback<Class<?>, Object> controllerFactory) {
 		this();
-		LOGGER.debug("AbstractFxmlView construction, factory {}", controllerFactory);
 		this.controllerFactory = controllerFactory;
+		LOGGER.debug("Constructed View, additiona properties, controller factory: {}", controllerFactory);
+
 	}
 	
 	// gpaglia
@@ -230,6 +233,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	 *             the illegal state exception
 	 */
 	private FXMLLoader loadSynchronously(final URL resource, final Optional<ResourceBundle> bundle) throws IllegalStateException {
+		LOGGER.trace("Loading resource {} synchronously", resource);
 
 		final FXMLLoader loader = new FXMLLoader(resource, bundle.orElse(null));
 		loader.setControllerFactory(this::createControllerForType);
