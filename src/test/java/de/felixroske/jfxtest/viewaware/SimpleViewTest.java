@@ -1,4 +1,4 @@
-package jfxtest.viewaware;
+package de.felixroske.jfxtest.viewaware;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;

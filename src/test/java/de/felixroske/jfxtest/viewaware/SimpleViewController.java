@@ -1,4 +1,4 @@
-package jfxtest.viewaware;
+package de.felixroske.jfxtest.viewaware;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,20 +11,20 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
 @FXMLController
-public class AnotherViewAwareController extends AbstractFxmlController {
-	private static final Logger logger = LoggerFactory.getLogger(AnotherViewAwareController.class);
+public class SimpleViewController extends AbstractFxmlController {
+	private static final Logger logger = LoggerFactory.getLogger(SimpleViewController.class);
 	
 	// for testing purposes
 	public ViewContextObject getContext() {
 		return getViewContextObject();
 	}
-
+	
 	@FXML
 	public void initialize() {
-		logger.info("Initializing a view aware custom controller");
-		logger.info("View context object is {}", getViewContextObject());
+		logger.info("Initializing controller");
+		logger.info("View context is {}", getViewContextObject());
 	}
-
+	
 	@ContextMethod(id="ID1")
 	public void action(ActionEvent event) {
 		

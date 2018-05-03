@@ -1,4 +1,4 @@
-package jfxtest.annotated;
+package de.felixroske.jfxtest.annotated;
 
 import de.felixroske.jfxsupport.AbstractFxmlView;
 import de.felixroske.jfxsupport.FXMLView;

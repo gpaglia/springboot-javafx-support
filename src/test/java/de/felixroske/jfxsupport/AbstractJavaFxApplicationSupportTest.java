@@ -1,13 +1,15 @@
 package de.felixroske.jfxsupport;
 
 import javafx.scene.image.Image;
-import jfxtest.annotated.AnnotatedView;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.testfx.api.FxToolkit;
+
+import de.felixroske.jfxtest.annotated.AnnotatedView;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,13 +19,11 @@ import static org.junit.Assert.assertThat;
 /**
  * Created on 11/3/2017 for Onyx.
  */
-//@RunWith(SpringRunner.class)
-//@SpringBootTest
-public class AbstractJavaFxApplicationSupportTest { //extends GuiTest {
+public class AbstractJavaFxApplicationSupportTest {
 
     private AbstractJavaFxApplicationSupport app;
 
-    public class TestApp extends AbstractJavaFxApplicationSupport {
+    public static class TestApp extends AbstractJavaFxApplicationSupport {
 
     }
 

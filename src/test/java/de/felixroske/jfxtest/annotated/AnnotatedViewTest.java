@@ -1,4 +1,4 @@
-package jfxtest.annotated;
+package de.felixroske.jfxtest.annotated;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;

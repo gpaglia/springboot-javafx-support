@@ -1,4 +1,4 @@
-package jfxtest.viewaware;
+package de.felixroske.jfxtest.viewaware;
 
 
 import de.felixroske.jfxsupport.AbstractFxmlView;

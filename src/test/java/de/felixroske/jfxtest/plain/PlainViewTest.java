@@ -1,4 +1,4 @@
-package jfxtest.plain;
+package de.felixroske.jfxtest.plain;
 
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;

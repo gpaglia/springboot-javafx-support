@@ -1,4 +1,4 @@
-package jfxtest.annotated;
+package de.felixroske.jfxtest.annotated;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
