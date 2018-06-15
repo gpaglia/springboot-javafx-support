@@ -47,7 +47,7 @@ public class MethodHolder {
 	}
 	
 	 /**
-     * Returns MethodWrapper by its id, with defined earch depth.
+     * Returns MethodWrapper by its id, with defined each depth.
      * @param id action id
      * @param depth the search depth in the parent holders, or null for infinite depth
      * 			(a depth == 0 means search in topmost holder)
@@ -152,7 +152,7 @@ public class MethodHolder {
 	public void register(Object target, String[] filteredIds) {
 
 		for (Method method : target.getClass().getDeclaredMethods()) {
-			// Only process methods that have the ActionProxy annotation
+			// Only process methods that have the ContextMethod annotation
 			Annotation[] annotations = method.getAnnotationsByType(ContextMethod.class);
 			if (annotations.length == 0) {
 				continue;
