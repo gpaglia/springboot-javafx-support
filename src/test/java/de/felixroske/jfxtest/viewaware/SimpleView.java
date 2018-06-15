@@ -1,6 +1,8 @@
 package de.felixroske.jfxtest.viewaware;
 
 
+import java.util.Collections;
+
 import de.felixroske.jfxsupport.AbstractFxmlView;
 import de.felixroske.jfxsupport.FXMLView;
 import de.felixroske.jfxsupport.context.ViewContextObject;
@@ -14,19 +16,19 @@ public class SimpleView extends AbstractFxmlView {
 	}
 	
 	SimpleView(String data) {
-		super(null, data);
+		super(null, Collections.singletonMap("KEY", data));
 	}
 	
 	SimpleView(String data, ViewContextObject parentContext) {
-		super(parentContext, data);
+		super(parentContext, Collections.singletonMap("KEY", data));
 	}
 	
 	SimpleView(String data, Callback<Class<?>, Object> factory) {
-		super(null, data, factory);
+		super(null, Collections.singletonMap("KEY", data), factory);
 	}
 	
 	SimpleView(String data, ViewContextObject parentContext, Callback<Class<?>, Object> factory) {
-		super(parentContext, data, factory);
+		super(parentContext, Collections.singletonMap("KEY", data), factory);
 	}
 	
 }

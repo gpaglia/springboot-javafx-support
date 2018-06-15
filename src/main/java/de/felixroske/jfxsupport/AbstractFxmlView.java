@@ -1,3 +1,4 @@
+
 package de.felixroske.jfxsupport;
 
 import static java.util.ResourceBundle.getBundle;
@@ -6,6 +7,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -19,7 +21,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.StringUtils;
 
-import de.felixroske.jfxsupport.context.MethodHolder;
 import de.felixroske.jfxsupport.context.ViewContextObject;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -52,7 +53,7 @@ import javafx.stage.StageStyle;
  * @author Andreas Jay
  * 
  * extended by
- * @author Gian Enrico Paglia (gianenrico.paglia@libero.it)
+ * @author Gian Enrico Paglia (gianni@gpaglia.com)
  * 	added support for injecting view reference in controller
  * 	added support for external controller factory
  *
@@ -77,14 +78,13 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	
 	// gpaglia
 	private Callback<Class<?>, Object> controllerFactory;
-	private ViewContextObject parentContext;
-	private Object userData = null;
+	private ViewContextObject viewContext;
 	
 	//
 	/**
 	 * Instantiates a new abstract fxml view.
 	 */
-	public AbstractFxmlView() {
+	protected AbstractFxmlView(ViewContextObject parentContext, Map<String, Object> properties) {
 		LOGGER.debug("Constructor for class {}", this.getClass().getSimpleName());
 		// Set the root path to package path
 		final String filePathFromPackageName = PropertyReaderHelper.determineFilePathFromPackageName(getClass());
@@ -93,29 +93,28 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		resource = getURLResource(annotation);
 		presenterProperty = new SimpleObjectProperty<>();
 		bundle = getResourceBundle(getBundleName());
-		LOGGER.debug("Constructed View, annotation: {}, resource: {}, bundle: {}", annotation, resource, getBundleName());
+		this.viewContext = new ViewContextObject(parentContext, this, null, properties);
+		LOGGER.debug("Constructed View, annotation: {}, resource: {}, bundle: {}, context: {}", annotation, resource, getBundleName(), viewContext);
 	}
 
 	// gpaglia
-	public AbstractFxmlView(ViewContextObject parentContext, Object userData) {
-		this();
-		this.parentContext = parentContext;
-		this.userData = userData;
-		LOGGER.debug("Constructed View, additiona properties, context: {}, userData: {}", parentContext, userData);
+	public AbstractFxmlView() {
+		this(null, null);
+		LOGGER.debug("Constructed View, no params");
 	}
 	
 	// gpaglia
 	public AbstractFxmlView(Callback<Class<?>, Object> controllerFactory) {
 		this();
 		this.controllerFactory = controllerFactory;
-		LOGGER.debug("Constructed View, additiona properties, controller factory: {}", controllerFactory);
+		LOGGER.debug("Constructed View, controller factory: {}", controllerFactory);
 
 	}
 	
 	// gpaglia
-	public AbstractFxmlView(ViewContextObject parentContext, Object userData, Callback<Class<?>, Object> controllerFactory) {
-		this(parentContext, userData);
-		LOGGER.debug("AbstractFxmlView construction, parentContext {}, userData {}, factory {}", parentContext, userData, controllerFactory);
+	public AbstractFxmlView(ViewContextObject parentContext, Map<String, Object> properties, Callback<Class<?>, Object> controllerFactory) {
+		this(parentContext, properties);
+		LOGGER.debug("Constructed View, viewContext: {}, factory: {}", viewContext, controllerFactory);
 
 		this.controllerFactory = controllerFactory;
 	}
@@ -126,13 +125,8 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	}
 	
 	// gpaglia
-	public ViewContextObject getParentContext() {
-		return parentContext;
-	}
-	
-	// gpaglia
-	public Object getUserData() {
-		return userData;
+	public ViewContextObject getViewContext() {
+		return viewContext;
 	}
 	
 	/**
@@ -173,12 +167,6 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 	private Object createControllerForType(final Class<?> type) {
 		LOGGER.debug("Entering create controller...");
 		Object aPresenter = null;
-		
-		LOGGER.trace("Createing vco");
-
-		ViewContextObject vco = new ViewContextObject(parentContext, this, null, userData);
-		
-		LOGGER.trace("Created vco: {}", vco);
 
 		if (controllerFactory != null) {
 			LOGGER.trace("Calling factory...");
@@ -191,10 +179,9 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 		
 		if (aPresenter instanceof IFxmlController) {
 			// add actions coming from this presenter
-			MethodHolder mh = vco.getMethodHolder();	// the mh is empty now
-			mh.register(aPresenter);
+			getViewContext().getMethodHolder().register(aPresenter);
 			// inject the vco object
-			((IFxmlController) aPresenter).setViewContextObject(vco);
+			((IFxmlController) aPresenter).setViewContextObject(getViewContext());
 		}
 		LOGGER.debug("Returning from createcontroller");
 		return aPresenter;

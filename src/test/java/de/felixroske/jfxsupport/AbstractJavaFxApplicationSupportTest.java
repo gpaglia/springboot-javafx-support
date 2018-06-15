@@ -33,8 +33,9 @@ public class AbstractJavaFxApplicationSupportTest {
     }
 
     @AfterClass
-    public static void afterClass() {
+    public static void afterClass() throws InterruptedException {
         System.setProperty("testfx.headless", "false");
+        Thread.sleep(2000);
     }
 
     @Before

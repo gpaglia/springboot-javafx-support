@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    	<!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    	<encoder>
+      		<pattern>%d{HH:mm:ss:SSS} | %-5level | %thread | %logger{20} | %msg%n%rEx</pattern>
+    	</encoder>
+  	</appender>
+<!--	File appender disabled in test    	
+  	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    	<file>jfin-moneyexporter.log</file>
+    	<encoder>
+			<pattern>%d{HH:mm:ss:SSS} | %-5level | %thread | %logger{20} | %msg%n%rEx</pattern>
+		</encoder>
+	</appender>
+-->
+
+	<logger name="de.felixroske.jfxsupport" level="TRACE" />
+
+    <root level="WARN">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

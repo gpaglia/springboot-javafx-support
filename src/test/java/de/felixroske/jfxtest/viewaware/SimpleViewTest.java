@@ -8,6 +8,8 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.Collections;
+
 import javax.annotation.PostConstruct;
 
 import org.junit.Ignore;
@@ -66,7 +68,7 @@ public class SimpleViewTest extends GuiTest {
 			return p;
 		};
 		SimpleViewControllerParent svcp = new SimpleViewControllerParent();
-		ViewContextObject parentContext = new ViewContextObject(null, null, "ParentData");
+		ViewContextObject parentContext = new ViewContextObject(null, null, Collections.singletonMap("KEY", "ParentData"));
 		parentContext.getMethodHolder().register(svcp);
 		
 		SimpleView buttonsView2 = beanFactory.getBean(SimpleView.class, "USERDATA", parentContext, factory);
@@ -77,7 +79,7 @@ public class SimpleViewTest extends GuiTest {
 
 		AnotherViewAwareController p = (AnotherViewAwareController) buttonsView2.getPresenter();
 		assertThat(p.getContext().getView(), is(equalTo(buttonsView2)));
-		assertThat(p.getContext().getUserData(), is(equalTo("USERDATA")));
+		assertThat(p.getContext().getProperty("KEY", String.class, false), is(equalTo("USERDATA")));
 		assertThat(p.getContext().getMethodHolder().getMethodWrapper("ID1"), is(notNullValue()));
 		assertThat(p.getContext().getMethodHolder().getMethodWrapper("ID2"), is(notNullValue()));
 
@@ -90,7 +92,7 @@ public class SimpleViewTest extends GuiTest {
 		assertThat(buttonsView2, isA(AbstractFxmlView.class));
 		assertThat(buttonsView2.getPresenter(), is(instanceOf(SimpleNoSupportViewController.class)));
 		assertThat(buttonsView2.getPresenter(), not(is(instanceOf(IFxmlController.class))));
-		assertThat(buttonsView2.getUserData(), is(equalTo("USERDATA")));
+		assertThat(buttonsView2.getViewContext().getProperty("KEY", String.class, false), is(equalTo("USERDATA")));
 	}
 	
 	
