@@ -64,7 +64,7 @@
     <dependency>
       <groupId>de.roskenet</groupId>
       <artifactId>springboot-javafx-test</artifactId>
-      <version>1.0.1</version>
+      <version>${spring-boot-javafx-test.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
